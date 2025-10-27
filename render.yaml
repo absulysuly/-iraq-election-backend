@@ -1,0 +1,36 @@
+# Render Blueprint for Iraq Election Backend
+# This file automates the entire deployment process
+
+services:
+  # Backend Web Service
+  - type: web
+    name: iraq-election-backend
+    runtime: node
+    region: frankfurt  # Closest to Iraq
+    plan: free
+    branch: main
+    buildCommand: npm install && npm run prisma:generate && npm run prisma:migrate:deploy
+    startCommand: npm run prisma:seed && npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: LOG_LEVEL
+        value: info
+      - key: DATABASE_URL
+        fromDatabase:
+          name: iraq-election-db
+          property: connectionString
+    healthCheckPath: /health
+
+databases:
+  # PostgreSQL Database
+  - name: iraq-election-db
+    databaseName: iraq_election
+    user: iraq_election_user
+    region: frankfurt
+    plan: free
+    ipAllowList: []  # Allow all IPs for free tier
