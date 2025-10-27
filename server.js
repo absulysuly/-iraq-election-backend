@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -35,9 +35,9 @@ app.get('/api', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-console.log("🚀 Iraqi Election Backend running on port", process.env.PORT || 3000);
-console.log("🌐 Environment:", process.env.NODE_ENV || "development");
-  console.log(\🔗 CORS Origin: \\);
+  console.log("🚀 Iraqi Election Backend running on port", process.env.PORT || 3000);
+  console.log("🌐 Environment:", process.env.NODE_ENV || "development");
+  console.log("🔗 CORS Origin:", process.env.CORS_ORIGIN || 'https://iraq-election.vercel.app');
 });
 
 module.exports = app;
