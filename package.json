@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "iraq-election-backend",
   "version": "1.0.0",
   "description": "Backend for Iraqi Election Platform",
@@ -20,6 +20,6 @@
     "nodemon": "^3.0.1"
   },
   "engines": {
-   "engines": { "node": "20.x" }
+    "node": "20.x"
   }
 }
