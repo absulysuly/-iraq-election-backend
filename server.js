@@ -35,7 +35,7 @@ app.get('/api', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(\🚀 Iraqi Election Backend running on port \\);
+console.log("🚀 Iraqi Election Backend running on port", process.env.PORT || 3000);
   console.log(\🌐 Environment: \\);
   console.log(\🔗 CORS Origin: \\);
 });
