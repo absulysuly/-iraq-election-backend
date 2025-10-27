@@ -1,0 +1,47 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "more": "More"
+  },
+  "nav": {
+    "social": "Social Platform",
+    "civic": "Civic Dashboard",
+    "feed": "Feed",
+    "profile": "Profile",
+    "reels": "Reels",
+    "events": "Events",
+    "debates": "Debates",
+    "articles": "Articles",
+    "dashboard": "Dashboard",
+    "governorates": "Governorates",
+    "parties": "Parties",
+    "report": "Report Violation"
+  },
+  "social": {
+    "whatsOnMind": "What's on your mind?",
+    "post": "Post",
+    "like": "Like",
+    "comment": "Comment",
+    "share": "Share",
+    "follow": "Follow",
+    "following": "Following",
+    "followers": "Followers",
+    "posts": "Posts"
+  },
+  "civic": {
+    "totalVoters": "Total Registered Voters",
+    "expectedTurnout": "Expected Turnout",
+    "candidates": "Candidates",
+    "violations": "Violations",
+    "greenImpact": "Environmental Impact"
+  }
+}
