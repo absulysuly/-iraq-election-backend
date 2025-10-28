@@ -1,3 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-export const prisma = new PrismaClient();
+// Only initialize Prisma if DATABASE_URL is provided
+export const prisma = process.env.DATABASE_URL 
+  ? new PrismaClient()
+  : null;

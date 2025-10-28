@@ -7,6 +7,11 @@ import { civicRouter } from './routes/civic';
 import { authRouter } from './routes/auth';
 import candidatePortalRouter from './routes/candidatePortal';
 
+console.log('🚀 Starting Iraq Election Backend...');
+console.log('📍 Port:', config.port);
+console.log('🌐 Allowed Origins:', config.allowedOrigins);
+console.log('💾 Database:', process.env.DATABASE_URL ? 'Connected' : 'Not configured (using mock data)');
+
 const app = express();
 
 app.use(cors({
