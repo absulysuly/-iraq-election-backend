@@ -2,10 +2,10 @@
 nixPkgs = ["nodejs-20_x"]
 
 [phases.install]
-cmds = ["echo 'Static site - no dependencies to install'"]
+cmds = ["npm install"]
 
 [phases.build]
-cmds = ["echo 'Static site - no build needed'"]
+cmds = ["echo 'Static frontend ready'"]
 
 [start]
 cmd = "npx serve . -p $PORT"
