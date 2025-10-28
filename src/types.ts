@@ -38,7 +38,7 @@ export interface GovernorateParticipation {
 }
 
 export interface GovernorateData {
-    governorate: Governorate;
+    governorate: Governorate | string;
     candidates: Candidate[];
     news: Array<{
         id: number;

@@ -1,92 +1,153 @@
-// Shared type definitions consumed by both frontends.
-export type Language = 'en' | 'ku' | 'ar';
+// Shared types and constants for Iraq Election Platform
 
+// Enums
 export enum UserRole {
-    Voter = 'Voter',
-    Candidate = 'Candidate',
+  Voter = 'Voter',
+  Candidate = 'Candidate',
 }
 
+export enum PostType {
+  Post = 'Post',
+  Reel = 'Reel',
+}
+
+// Export PostType values as constants for easier use
+export const POST_TYPES = PostType;
+
+// Iraqi Governorates
 export const GOVERNORATES = [
-    'Al Anbar', 'Al-Qādisiyyah', 'Babil', 'Baghdad', 'Basra',
-    'Dhi Qar', 'Diyala', 'Dohuk', 'Erbil', 'Karbala', 'Kirkuk',
-    'Maysan', 'Muthanna', 'Najaf', 'Nineveh', 'Saladin',
-    'Sulaymaniyah', 'Wasit',
+  'Baghdad',
+  'Basra',
+  'Nineveh',
+  'Erbil',
+  'Sulaymaniyah',
+  'Dohuk',
+  'Anbar',
+  'Diyala',
+  'Kirkuk',
+  'Saladin',
+  'Najaf',
+  'Karbala',
+  'Wasit',
+  'Babil',
+  'Maysan',
+  'Dhi Qar',
+  'Al-Qādisiyyah',
+  'Muthanna',
 ] as const;
 
-export type Governorate = typeof GOVERNORATES[number];
+export type GovernorateId = typeof GOVERNORATES[number];
+
+// Type definitions matching Prisma models with API flexibility
+export interface Governorate {
+  id: string;
+  name: string;
+  enName: string;
+  slug: string;
+  path?: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
 
 export interface User {
-    id: string;
-    name: string;
-    avatarUrl: string;
-    role: UserRole;
-    verified: boolean;
-    party: string;
-    governorate: Governorate;
-    bio?: string;
+  id: string;
+  name: string;
+  avatarUrl: string;
+  role: UserRole | string;  // Allow string literals for flexibility
+  verified: boolean;
+  party: string;
+  governorate?: string;  // Optional for simplified API responses
+  governorateId: string;
+  bio?: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
-
-export enum AppTab {
-    Home = 'Home',
-    Posts = 'Posts',
-    Reels = 'Reels',
-    Candidates = 'Candidates',
-    Debates = 'Debates',
-    Events = 'Events',
-    DebateRoom = 'Debate Room',
-    Dashboard = 'Dashboard',
-    Settings = 'Settings',
-    CandidateProfile = 'Candidate Profile',
-}
-
-export type MainContentTab =
-    | AppTab.Posts
-    | AppTab.Reels
-    | AppTab.Candidates
-    | AppTab.Debates
-    | AppTab.Events;
-
-export type PostType = 'Post' | 'Reel';
 
 export interface Post {
-    id: string;
-    author: User;
-    timestamp: string;
-    content: string;
-    mediaUrl?: string;
-    likes: number;
-    comments: number;
-    shares: number;
-    isSponsored: boolean;
-    type: PostType;
-    governorates: Governorate[];
+  id: string;
+  author?: User;  // Optional populated relation for API responses
+  authorId: string;
+  timestamp: Date | string;  // Allow both Date objects and ISO strings
+  content: string;
+  mediaUrl?: string | null;
+  likes: number;
+  comments: number;
+  shares: number;
+  isSponsored: boolean;
+  type: PostType | string;  // Allow string literals like 'Post' or 'Reel'
+  governorates: string[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface Event {
-    id: string;
-    title: string;
-    date: string;
-    location: string;
-    organizer: User;
-    governorate: Governorate;
-}
-
-export interface Debate {
-    id: string;
-    title: string;
-    topic: string;
-    scheduledTime: string;
-    isLive: boolean;
-    participants: User[];
+  id: string;
+  title: string;
+  date: Date | string;
+  location: string;
+  organizer?: User;  // Optional populated relation
+  organizerId: string;
+  governorate?: string;  // Optional for simplified views
+  governorateId: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface Article {
-    id: string;
-    source: string;
-    timestamp: string;
-    title: string;
-    authorName: string;
-    contentSnippet: string;
-    url: string;
-    governorates: Governorate[];
+  id: string;
+  source: string;
+  timestamp: Date | string;
+  title: string;
+  authorName: string;
+  contentSnippet: string;
+  url: string;
+  governorates: string[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface Debate {
+  id: string;
+  title: string;
+  topic: string;
+  scheduledTime: Date | string;
+  isLive: boolean;
+  participants?: DebateParticipant[] | any[];  // Optional populated relation
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface DebateParticipant {
+  debateId: string;
+  userId: string;
+  user?: User;  // Optional populated relation
+}
+
+export interface Party {
+  id: string;
+  name: string;
+  logoUrl: string;
+  leader: string;
+  founded: number;
+  description: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface Candidate {
+  id: string;
+  userId: string;
+  partyId: string;
+  platformSummary?: string | null;
+  votes: number;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface GovernorateStatistic {
+  governorateId: string;
+  registeredVoters: number;
+  pollingStations: number;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
