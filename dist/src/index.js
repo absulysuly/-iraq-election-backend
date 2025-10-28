@@ -10,12 +10,10 @@ const social_1 = require("./routes/social");
 const civic_1 = require("./routes/civic");
 const auth_1 = require("./routes/auth");
 const candidatePortal_1 = __importDefault(require("./routes/candidatePortal"));
-
 console.log('🚀 Starting Iraq Election Backend...');
 console.log('📍 Port:', config_1.config.port);
 console.log('🌐 Allowed Origins:', config_1.config.allowedOrigins);
 console.log('💾 Database:', process.env.DATABASE_URL ? 'Connected' : 'Not configured (using mock data)');
-
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: config_1.config.allowedOrigins,
@@ -28,11 +26,9 @@ app.use('/social', social_1.socialRouter);
 app.use('/civic', civic_1.civicRouter);
 app.use('/portal/candidates', candidatePortal_1.default);
 app.get('/health', (_req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({ status: 'ok' });
 });
-
 const PORT = config_1.config.port;
-
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Server running on port ${PORT}`);
     console.log(`✅ Health check: http://localhost:${PORT}/health`);
