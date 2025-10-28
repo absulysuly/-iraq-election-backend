@@ -1,5 +1,11 @@
 {
   "name": "iraq-election-platform",
   "version": "1.0.0",
-  "private": true
+  "private": true,
+  "scripts": {
+    "start": "serve . -p ${PORT:-3000}"
+  },
+  "dependencies": {
+    "serve": "^14.2.5"
+  }
 }
