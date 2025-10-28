@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.toCandidateSummary = exports.toSharedArticle = exports.toSharedDebate = exports.toSharedEvent = exports.toSharedPost = exports.toSharedUser = void 0;
-const types_1 = require("shared-schema/types");
+const types_1 = require("../shared-schema/types");
 const asGovernorate = (name) => {
     if (types_1.GOVERNORATES.includes(name)) {
         return name;

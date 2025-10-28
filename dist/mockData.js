@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.partyData = exports.governorateData = exports.governorateParticipation = exports.slugify = exports.dashboardStats = exports.articles = exports.debates = exports.events = exports.posts = exports.users = void 0;
-const types_1 = require("shared-schema/types");
+const types_1 = require("./shared-schema/types");
 exports.users = [];
 exports.posts = [];
 exports.events = [];
@@ -31,9 +31,9 @@ const slugify = (name) => name
     .trim()
     .replace(/\s+/g, '-');
 exports.slugify = slugify;
-exports.governorateParticipation = types_1.GOVERNORATES.map((name, index) => ({
-    governorateId: (0, exports.slugify)(name) || `gov-${index}`,
-    governorateName: name,
+exports.governorateParticipation = types_1.GOVERNORATES.map((gov, index) => ({
+    governorateId: gov.slug || (0, exports.slugify)(gov.enName) || `gov-${index}`,
+    governorateName: gov.name,
     estimatedTurnout: Math.floor(Math.random() * (75 - 45 + 1)) + 45,
 }));
 const sampleCandidates = [
@@ -42,16 +42,16 @@ const sampleCandidates = [
     { id: 3, name: 'علي كريم', party: 'التيار الصدري', imageUrl: 'https://picsum.photos/200/200?random=3', verified: false, governorate: 'Baghdad' },
     { id: 4, name: 'مريم جاسم', party: 'الحزب الديمقراطي الكردستاني', imageUrl: 'https://picsum.photos/200/200?random=4', verified: true, governorate: 'Erbil' },
 ];
-exports.governorateData = new Map(types_1.GOVERNORATES.map(name => {
-    const slug = (0, exports.slugify)(name);
+exports.governorateData = new Map(types_1.GOVERNORATES.map(gov => {
+    const slug = gov.slug || (0, exports.slugify)(gov.enName);
     return [
         slug,
         {
-            governorate: name,
-            candidates: sampleCandidates.filter(candidate => candidate.governorate === name || candidate.governorate === 'Baghdad'),
+            governorate: gov.name,
+            candidates: sampleCandidates.filter(candidate => candidate.governorate === gov.enName || candidate.governorate === 'Baghdad'),
             news: [
-                { id: 1, title: `أخبار ${name}`, summary: 'تطورات انتخابية محلية.', date: '2025-09-15' },
-                { id: 2, title: `استعدادات ${name}`, summary: 'تحضيرات المفوضية للمحافظة.', date: '2025-09-14' },
+                { id: 1, title: `أخبار ${gov.name}`, summary: 'تطورات انتخابية محلية.', date: '2025-09-15' },
+                { id: 2, title: `استعدادات ${gov.name}`, summary: 'تحضيرات المفوضية للمحافظة.', date: '2025-09-14' },
             ],
             localStats: {
                 registeredVoters: Math.floor(Math.random() * 5_000_000),
