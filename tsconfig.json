@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
@@ -13,10 +13,10 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "shared-schema/*": ["../shared-schema/*"]
+      "shared-schema/*": ["./shared-schema/*"]
     },
-    "rootDirs": ["src", "../shared-schema"]
+    "rootDirs": ["src", "./shared-schema"]
   },
-  "include": ["src"],
+  "include": ["src", "shared-schema"],
   "exclude": ["node_modules", "dist"]
 }
