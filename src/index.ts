@@ -25,6 +25,9 @@ app.get('/health', (_req: Request, res: Response) => {
     res.json({ status: 'ok' });
 });
 
-app.listen(config.port, () => {
-    console.log(`Hamlet backend listening on port ${config.port}`);
+const PORT = config.port;
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`✅ Health check: http://localhost:${PORT}/health`);
 });
