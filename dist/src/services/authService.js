@@ -4,6 +4,9 @@ exports.loginWithRole = void 0;
 const prisma_1 = require("../lib/prisma");
 const mappers_1 = require("./mappers");
 const loginWithRole = async (role) => {
+    if (!prisma_1.prisma) {
+        return null;
+    }
     const user = await prisma_1.prisma.user.findFirst({
         where: { role },
         include: {

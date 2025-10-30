@@ -2,7 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDashboardStats = exports.getGovernorateData = exports.getGovernorateParticipation = void 0;
 const prisma_1 = require("../lib/prisma");
+const mockData_1 = require("../mockData");
 const getGovernorateParticipation = async () => {
+    if (!prisma_1.prisma) {
+        return mockData_1.governorateParticipation;
+    }
     const participation = await prisma_1.prisma.governorateParticipation.findMany();
     return participation.map(item => ({
         governorateId: item.governorateId,
@@ -12,6 +16,10 @@ const getGovernorateParticipation = async () => {
 };
 exports.getGovernorateParticipation = getGovernorateParticipation;
 const getGovernorateData = async (slug) => {
+    if (!prisma_1.prisma) {
+        const key = (0, mockData_1.slugify)(slug ?? '');
+        return mockData_1.governorateData.get(key) ?? null;
+    }
     const governorate = await prisma_1.prisma.governorate.findUnique({
         where: { slug },
         include: {
@@ -64,10 +72,17 @@ const getGovernorateData = async (slug) => {
 };
 exports.getGovernorateData = getGovernorateData;
 const getDashboardStats = async () => {
+    if (!prisma_1.prisma) {
+        return mockData_1.dashboardStats;
+    }
     const snapshot = await prisma_1.prisma.dashboardSnapshot.findFirst();
     if (!snapshot) {
         throw new Error('Dashboard snapshot not found');
     }
-    return snapshot.metrics;
+    const metrics = snapshot.metrics;
+    if (typeof metrics !== 'object' || metrics === null) {
+        throw new Error('Invalid dashboard metrics payload');
+    }
+    return metrics;
 };
 exports.getDashboardStats = getDashboardStats;

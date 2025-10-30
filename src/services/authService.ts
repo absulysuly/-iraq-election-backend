@@ -3,6 +3,10 @@ import { prisma } from '../lib/prisma';
 import { toSharedUser } from './mappers';
 
 export const loginWithRole = async (role: UserRole) => {
+  if (!prisma) {
+    return null;
+  }
+
   const user = await prisma.user.findFirst({
     where: { role },
     include: {

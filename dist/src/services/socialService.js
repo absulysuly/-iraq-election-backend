@@ -1,12 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.likePost = exports.followCandidate = exports.getArticles = exports.getDebates = exports.createEvent = exports.getEvents = exports.createPost = exports.getPosts = exports.getUsers = void 0;
+const types_1 = require("shared-schema/types");
 const prisma_1 = require("../lib/prisma");
+const mockData_1 = require("../mockData");
 const mappers_1 = require("./mappers");
 const getUsers = async (role, governorate) => {
-    const users = await prisma_1.prisma.user.findMany({
+    const client = prisma_1.prisma;
+    const roleFilter = role && Object.values(types_1.UserRole).includes(role) ? role : undefined;
+    if (!client) {
+        return mockData_1.users
+            .filter(user => (roleFilter ? user.role === roleFilter : true))
+            .filter(user => governorate && governorate !== 'All' ? user.governorate === governorate : true);
+    }
+    const users = await client.user.findMany({
         where: {
-            ...(role ? { role } : {}),
+            ...(roleFilter ? { role: roleFilter } : {}),
             ...(governorate && governorate !== 'All'
                 ? { governorate: { name: governorate } }
                 : {}),
@@ -19,7 +28,16 @@ const getUsers = async (role, governorate) => {
 };
 exports.getUsers = getUsers;
 const getPosts = async (filters) => {
-    const posts = await prisma_1.prisma.post.findMany({
+    const client = prisma_1.prisma;
+    if (!client) {
+        return mockData_1.posts
+            .filter(post => (filters.type ? post.type === filters.type : true))
+            .filter(post => filters.authorId ? post.author?.id === filters.authorId : true)
+            .filter(post => filters.governorate && filters.governorate !== 'All'
+            ? post.governorates.includes(filters.governorate)
+            : true);
+    }
+    const posts = await client.post.findMany({
         where: {
             ...(filters.type ? { type: filters.type } : {}),
             ...(filters.authorId ? { authorId: filters.authorId } : {}),
@@ -41,14 +59,40 @@ const getPosts = async (filters) => {
 exports.getPosts = getPosts;
 const createPost = async (params) => {
     const { content, authorId, governorate, type, mediaUrl } = params;
-    const author = await prisma_1.prisma.user.findUnique({
+    const client = prisma_1.prisma;
+    if (!client) {
+        const author = mockData_1.users.find(user => user.id === authorId);
+        if (!author) {
+            throw new Error('Author not found');
+        }
+        const now = new Date().toISOString();
+        const newPost = {
+            id: `post-${Date.now()}`,
+            author,
+            authorId: author.id,
+            timestamp: now,
+            content,
+            mediaUrl,
+            likes: 0,
+            comments: 0,
+            shares: 0,
+            isSponsored: false,
+            type,
+            governorates: governorate ? [governorate] : [author.governorate ?? 'Baghdad'],
+            createdAt: now,
+            updatedAt: now,
+        };
+        mockData_1.posts.unshift(newPost);
+        return newPost;
+    }
+    const author = await client.user.findUnique({
         where: { id: authorId },
         include: { governorate: true },
     });
     if (!author) {
         throw new Error('Author not found');
     }
-    const post = await prisma_1.prisma.post.create({
+    const post = await client.post.create({
         data: {
             id: `post-${Date.now()}`,
             authorId,
@@ -69,7 +113,11 @@ const createPost = async (params) => {
 };
 exports.createPost = createPost;
 const getEvents = async (governorate) => {
-    const events = await prisma_1.prisma.event.findMany({
+    const client = prisma_1.prisma;
+    if (!client) {
+        return mockData_1.events.filter(event => governorate && governorate !== 'All' ? event.governorate === governorate : true);
+    }
+    const events = await client.event.findMany({
         where: governorate && governorate !== 'All' ? { governorate: { name: governorate } } : {},
         orderBy: { date: 'asc' },
         include: {
@@ -84,7 +132,28 @@ const getEvents = async (governorate) => {
 exports.getEvents = getEvents;
 const createEvent = async (params) => {
     const { title, date, location, organizerId, governorate } = params;
-    const organizer = await prisma_1.prisma.user.findUnique({
+    const client = prisma_1.prisma;
+    if (!client) {
+        const organizer = mockData_1.users.find(user => user.id === organizerId);
+        if (!organizer) {
+            throw new Error('Organizer not found');
+        }
+        const event = {
+            id: `event-${Date.now()}`,
+            title,
+            date,
+            location,
+            organizer,
+            organizerId,
+            governorate: governorate ?? organizer.governorate ?? 'Baghdad',
+            governorateId: governorate ?? organizer.governorate ?? 'Baghdad',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        };
+        mockData_1.events.unshift(event);
+        return event;
+    }
+    const organizer = await client.user.findUnique({
         where: { id: organizerId },
         include: { governorate: true },
     });
@@ -92,11 +161,11 @@ const createEvent = async (params) => {
         throw new Error('Organizer not found');
     }
     const targetGovernorate = governorate ?? organizer.governorate.name;
-    const governorateRecord = await prisma_1.prisma.governorate.findFirst({ where: { name: targetGovernorate } });
+    const governorateRecord = await client.governorate.findFirst({ where: { name: targetGovernorate } });
     if (!governorateRecord) {
         throw new Error('Governorate not found');
     }
-    const event = await prisma_1.prisma.event.create({
+    const event = await client.event.create({
         data: {
             id: `event-${Date.now()}`,
             title,
@@ -114,7 +183,17 @@ const createEvent = async (params) => {
 };
 exports.createEvent = createEvent;
 const getDebates = async (filters) => {
-    const debates = await prisma_1.prisma.debate.findMany({
+    const client = prisma_1.prisma;
+    if (!client) {
+        return mockData_1.debates
+            .filter(debate => filters.participantIds && filters.participantIds.length > 0
+            ? debate.participants?.some(p => filters.participantIds?.includes(p.id))
+            : true)
+            .filter(debate => filters.governorate && filters.governorate !== 'All'
+            ? debate.participants?.some(p => p.governorate === filters.governorate)
+            : true);
+    }
+    const debates = await client.debate.findMany({
         where: {
             ...(filters.participantIds && filters.participantIds.length > 0
                 ? {
@@ -138,13 +217,17 @@ const getDebates = async (filters) => {
     });
     const mapped = debates.map(mappers_1.toSharedDebate);
     if (filters.governorate && filters.governorate !== 'All') {
-        return mapped.filter(debate => debate.participants.some(p => p.governorate === filters.governorate));
+        return mapped.filter(debate => debate.participants?.some(p => p.governorate === filters.governorate) ?? false);
     }
     return mapped;
 };
 exports.getDebates = getDebates;
 const getArticles = async (governorate) => {
-    const articles = await prisma_1.prisma.article.findMany({
+    const client = prisma_1.prisma;
+    if (!client) {
+        return mockData_1.articles.filter(article => governorate && governorate !== 'All' ? article.governorates.includes(governorate) : true);
+    }
+    const articles = await client.article.findMany({
         where: governorate && governorate !== 'All' ? { governorates: { has: governorate } } : {},
         orderBy: { timestamp: 'desc' },
     });
@@ -157,10 +240,20 @@ const followCandidate = async (candidateId) => {
 };
 exports.followCandidate = followCandidate;
 const likePost = async (postId) => {
-    await prisma_1.prisma.post.update({
+    const client = prisma_1.prisma;
+    if (!client) {
+        const post = mockData_1.posts.find(item => item.id === postId);
+        if (post) {
+            post.likes += 1;
+        }
+        return { success: true, postId };
+    }
+    await client.post
+        .update({
         where: { id: postId },
         data: { likes: { increment: 1 } },
-    }).catch(() => undefined);
+    })
+        .catch(() => undefined);
     return { success: true, postId };
 };
 exports.likePost = likePost;

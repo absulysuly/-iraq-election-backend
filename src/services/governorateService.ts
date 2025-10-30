@@ -1,7 +1,12 @@
 import { prisma } from '../lib/prisma';
 import type { GovernorateData, GovernorateParticipation, DashboardStats } from '../types';
+import { governorateParticipation as mockParticipation, governorateData as mockGovernorateData, dashboardStats as mockDashboardStats, slugify } from '../mockData';
 
 export const getGovernorateParticipation = async (): Promise<GovernorateParticipation[]> => {
+    if (!prisma) {
+        return mockParticipation;
+    }
+
     const participation = await prisma.governorateParticipation.findMany();
     return participation.map(item => ({
         governorateId: item.governorateId,
@@ -11,6 +16,11 @@ export const getGovernorateParticipation = async (): Promise<GovernorateParticip
 };
 
 export const getGovernorateData = async (slug: string): Promise<GovernorateData | null> => {
+    if (!prisma) {
+        const key = slugify(slug ?? '');
+        return mockGovernorateData.get(key) ?? null;
+    }
+
     const governorate = await prisma.governorate.findUnique({
         where: { slug },
         include: {
@@ -67,9 +77,19 @@ export const getGovernorateData = async (slug: string): Promise<GovernorateData 
 };
 
 export const getDashboardStats = async (): Promise<DashboardStats> => {
+    if (!prisma) {
+        return mockDashboardStats;
+    }
+
     const snapshot = await prisma.dashboardSnapshot.findFirst();
     if (!snapshot) {
         throw new Error('Dashboard snapshot not found');
     }
-    return snapshot.metrics as DashboardStats;
+
+    const metrics = snapshot.metrics as unknown;
+    if (typeof metrics !== 'object' || metrics === null) {
+        throw new Error('Invalid dashboard metrics payload');
+    }
+
+    return metrics as DashboardStats;
 };

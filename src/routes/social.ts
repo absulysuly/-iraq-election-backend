@@ -1,13 +1,8 @@
 import { Router, type Request, type Response } from 'express';
-import type { Post, Event, Debate, Article, Governorate, User } from 'shared-schema/types';
+import type { Post, Event, Debate, Article, User, GovernorateId } from 'shared-schema/types';
 import { users, posts, events, debates, articles } from '../mockData';
 
 const router = Router();
-
-const asGovernorate = (value: string | undefined): Governorate | undefined => {
-    if (!value) return undefined;
-    return value as Governorate;
-};
 
 router.get('/users', (req: Request, res: Response) => {
     const { role, governorate } = req.query as { role?: string; governorate?: string };
@@ -31,17 +26,17 @@ router.get('/posts', (req: Request, res: Response) => {
         filtered = filtered.filter(post => post.type === type);
     }
     if (governorate && governorate !== 'All') {
-        filtered = filtered.filter(post => post.governorates.includes(governorate as Governorate));
+        filtered = filtered.filter(post => post.governorates.includes(governorate));
     }
     if (authorId) {
-        filtered = filtered.filter(post => post.author.id === authorId);
+        filtered = filtered.filter(post => post.author?.id === authorId);
     }
 
     res.json(filtered);
 });
 
 router.post('/posts', (req: Request, res: Response) => {
-    const { content, authorId, governorate } = req.body as { content?: string; authorId?: string; governorate?: Governorate };
+    const { content, authorId, governorate } = req.body as { content?: string; authorId?: string; governorate?: GovernorateId };
     if (!content) {
         return res.status(400).json({ error: 'content is required' });
     }
@@ -54,17 +49,21 @@ router.post('/posts', (req: Request, res: Response) => {
         return res.status(404).json({ error: 'author not found' });
     }
 
+    const timestamp = new Date().toISOString();
     const newPost: Post = {
         id: `post-${Date.now()}`,
         author,
-        timestamp: new Date().toISOString(),
+        authorId: author.id,
+        timestamp,
         content,
         likes: 0,
         comments: 0,
         shares: 0,
         isSponsored: false,
         type: 'Post',
-        governorates: governorate ? [governorate] : [author.governorate],
+        governorates: governorate ? [governorate] : [author.governorate ?? 'Baghdad'],
+        createdAt: timestamp,
+        updatedAt: timestamp,
     };
     posts.unshift(newPost);
     res.status(201).json(newPost);
@@ -75,7 +74,7 @@ router.post('/reels', (req: Request, res: Response) => {
         caption?: string;
         authorId?: string;
         mediaUrl?: string;
-        governorate?: Governorate;
+        governorate?: GovernorateId;
     };
 
     if (!caption) {
@@ -90,10 +89,12 @@ router.post('/reels', (req: Request, res: Response) => {
         return res.status(404).json({ error: 'author not found' });
     }
 
+    const timestamp = new Date().toISOString();
     const newReel: Post = {
         id: `reel-${Date.now()}`,
         author,
-        timestamp: new Date().toISOString(),
+        authorId: author.id,
+        timestamp,
         content: caption,
         mediaUrl,
         likes: 0,
@@ -101,7 +102,9 @@ router.post('/reels', (req: Request, res: Response) => {
         shares: 0,
         isSponsored: false,
         type: 'Reel',
-        governorates: governorate ? [governorate] : [author.governorate],
+        governorates: governorate ? [governorate] : [author.governorate ?? 'Baghdad'],
+        createdAt: timestamp,
+        updatedAt: timestamp,
     };
     posts.unshift(newReel);
     res.status(201).json(newReel);
@@ -122,7 +125,7 @@ router.post('/events', (req: Request, res: Response) => {
         date?: string;
         location?: string;
         organizerId?: string;
-        governorate?: Governorate;
+        governorate?: GovernorateId;
     };
 
     if (!title || !date || !location) {
@@ -130,17 +133,27 @@ router.post('/events', (req: Request, res: Response) => {
     }
 
     const organizer = organizerId ? users.find(user => user.id === organizerId) : undefined;
+    const fallbackOrganizer = organizer ?? users[0];
     if (organizerId && !organizer) {
         return res.status(404).json({ error: 'organizer not found' });
     }
+    if (!fallbackOrganizer) {
+        return res.status(400).json({ error: 'No organizers available in mock data' });
+    }
 
+    const timestamp = new Date().toISOString();
+    const governorateName = governorate ?? fallbackOrganizer.governorate ?? 'Baghdad';
     const newEvent: Event = {
         id: `event-${Date.now()}`,
         title,
         date,
         location,
-        organizer: organizer ?? users[0],
-        governorate: governorate ?? organizer?.governorate ?? 'Baghdad',
+        organizer: fallbackOrganizer,
+        organizerId: fallbackOrganizer.id,
+        governorate: governorateName,
+        governorateId: governorateName,
+        createdAt: timestamp,
+        updatedAt: timestamp,
     };
     events.unshift(newEvent);
     res.status(201).json(newEvent);
@@ -151,12 +164,12 @@ router.get('/debates', (req: Request, res: Response) => {
 
     let filtered: Debate[] = debates;
     if (governorate && governorate !== 'All') {
-        filtered = filtered.filter(debate => debate.participants.some(p => p.governorate === governorate));
+        filtered = filtered.filter(debate => debate.participants?.some(p => p.governorate === governorate));
     }
 
     if (participantIds) {
         const ids = participantIds.split(',').map(id => id.trim()).filter(Boolean);
-        filtered = filtered.filter(debate => debate.participants.some(p => ids.includes(p.id)));
+        filtered = filtered.filter(debate => debate.participants?.some(p => ids.includes(p.id)));
     }
 
     res.json(filtered);
@@ -166,7 +179,7 @@ router.get('/articles', (req: Request, res: Response) => {
     const { governorate } = req.query as { governorate?: string };
     let filtered: Article[] = articles;
     if (governorate && governorate !== 'All') {
-        filtered = filtered.filter(article => article.governorates.includes(governorate as Governorate));
+        filtered = filtered.filter(article => article.governorates.includes(governorate));
     }
     res.json(filtered);
 });
