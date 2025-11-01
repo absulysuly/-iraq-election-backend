@@ -1,13 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.toCandidateSummary = exports.toSharedArticle = exports.toSharedDebate = exports.toSharedEvent = exports.toSharedPost = exports.toSharedUser = void 0;
-const types_1 = require("shared-schema/types");
-const asGovernorate = (name) => {
-    if (types_1.GOVERNORATES.includes(name)) {
-        return name;
-    }
-    throw new Error(`Unknown governorate: ${name}`);
-};
 const toSharedUser = (user) => ({
     id: user.id,
     name: user.name,
@@ -15,13 +8,17 @@ const toSharedUser = (user) => ({
     role: user.role,
     verified: user.verified,
     party: user.party,
-    governorate: asGovernorate(user.governorate.name),
+    governorate: user.governorate.name,
+    governorateId: user.governorateId,
     bio: user.bio ?? undefined,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
 });
 exports.toSharedUser = toSharedUser;
 const toSharedPost = (post) => ({
     id: post.id,
     author: (0, exports.toSharedUser)(post.author),
+    authorId: post.authorId,
     timestamp: post.timestamp.toISOString(),
     content: post.content,
     mediaUrl: post.mediaUrl ?? undefined,
@@ -30,7 +27,9 @@ const toSharedPost = (post) => ({
     shares: post.shares,
     isSponsored: post.isSponsored,
     type: post.type,
-    governorates: post.governorates.map(asGovernorate),
+    governorates: post.governorates,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
 });
 exports.toSharedPost = toSharedPost;
 const toSharedEvent = (event) => ({
@@ -39,7 +38,11 @@ const toSharedEvent = (event) => ({
     date: event.date.toISOString(),
     location: event.location,
     organizer: (0, exports.toSharedUser)(event.organizer),
-    governorate: asGovernorate(event.governorate.name),
+    organizerId: event.organizerId,
+    governorate: event.governorate.name,
+    governorateId: event.governorateId,
+    createdAt: event.createdAt,
+    updatedAt: event.updatedAt,
 });
 exports.toSharedEvent = toSharedEvent;
 const toSharedDebate = (debate) => ({
@@ -49,6 +52,8 @@ const toSharedDebate = (debate) => ({
     scheduledTime: debate.scheduledTime.toISOString(),
     isLive: debate.isLive,
     participants: debate.participants.map(participant => (0, exports.toSharedUser)(participant.user)),
+    createdAt: debate.createdAt,
+    updatedAt: debate.updatedAt,
 });
 exports.toSharedDebate = toSharedDebate;
 const toSharedArticle = (article) => ({
@@ -59,7 +64,9 @@ const toSharedArticle = (article) => ({
     authorName: article.authorName,
     contentSnippet: article.contentSnippet,
     url: article.url,
-    governorates: article.governorates.map(asGovernorate),
+    governorates: article.governorates,
+    createdAt: article.createdAt,
+    updatedAt: article.updatedAt,
 });
 exports.toSharedArticle = toSharedArticle;
 const toCandidateSummary = (candidate) => ({
@@ -68,7 +75,7 @@ const toCandidateSummary = (candidate) => ({
     party: candidate.party.name,
     imageUrl: candidate.user.avatarUrl,
     verified: candidate.user.verified,
-    governorate: asGovernorate(candidate.user.governorate.name),
+    governorate: candidate.user.governorate.name,
     platformSummary: candidate.platformSummary ?? undefined,
     votes: candidate.votes ?? undefined,
 });

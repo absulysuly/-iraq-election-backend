@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from 'express';
-import type { UserRole } from 'shared-schema/types';
+import type { UserRole } from '../types';
 import { loginWithRole } from '../services/authService';
 
 export const authRouter = Router();

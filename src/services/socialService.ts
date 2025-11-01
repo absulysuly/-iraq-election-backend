@@ -1,12 +1,11 @@
 import type {
   PostType,
-  Governorate,
   User as SharedUser,
   Post as SharedPost,
   Event as SharedEvent,
   Debate as SharedDebate,
   Article as SharedArticle,
-} from 'shared-schema/types';
+} from '../types';
 import { prisma } from '../lib/prisma';
 import {
   toSharedUser,
@@ -19,7 +18,7 @@ import {
 export const getUsers = async (role?: string, governorate?: string): Promise<SharedUser[]> => {
   const users = await prisma.user.findMany({
     where: {
-      ...(role ? { role } : {}),
+      ...(role ? { role: role as any } : {}),
       ...(governorate && governorate !== 'All'
         ? { governorate: { name: governorate } }
         : {}),
@@ -37,10 +36,10 @@ export const getPosts = async (
 ): Promise<SharedPost[]> => {
   const posts = await prisma.post.findMany({
     where: {
-      ...(filters.type ? { type: filters.type } : {}),
+      ...(filters.type ? { type: filters.type as any } : {}),
       ...(filters.authorId ? { authorId: filters.authorId } : {}),
       ...(filters.governorate && filters.governorate !== 'All'
-        ? { governorates: { has: filters.governorate as Governorate } }
+        ? { governorates: { has: filters.governorate } }
         : {}),
     },
     orderBy: { timestamp: 'desc' },
@@ -59,7 +58,7 @@ export const getPosts = async (
 export const createPost = async (params: {
   content: string;
   authorId: string;
-  governorate?: Governorate;
+  governorate?: string;
   type: PostType;
   mediaUrl?: string;
 }): Promise<SharedPost> => {
@@ -79,8 +78,8 @@ export const createPost = async (params: {
       authorId,
       content,
       mediaUrl,
-      type,
-      governorates: governorate ? [governorate] : [author.governorate.name as Governorate],
+      type: type as any,
+      governorates: governorate ? [governorate] : [author.governorate.name],
     },
     include: {
       author: {
@@ -114,7 +113,7 @@ export const createEvent = async (params: {
   date: string;
   location: string;
   organizerId: string;
-  governorate?: Governorate;
+  governorate?: string;
 }): Promise<SharedEvent> => {
   const { title, date, location, organizerId, governorate } = params;
 
@@ -126,7 +125,7 @@ export const createEvent = async (params: {
     throw new Error('Organizer not found');
   }
 
-  const targetGovernorate = governorate ?? (organizer.governorate.name as Governorate);
+  const targetGovernorate = governorate ?? organizer.governorate.name;
   const governorateRecord = await prisma.governorate.findFirst({ where: { name: targetGovernorate } });
   if (!governorateRecord) {
     throw new Error('Governorate not found');

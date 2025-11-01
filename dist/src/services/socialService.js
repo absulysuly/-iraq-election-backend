@@ -6,7 +6,7 @@ const mappers_1 = require("./mappers");
 const getUsers = async (role, governorate) => {
     const users = await prisma_1.prisma.user.findMany({
         where: {
-            ...(role ? { role } : {}),
+            ...(role ? { role: role } : {}),
             ...(governorate && governorate !== 'All'
                 ? { governorate: { name: governorate } }
                 : {}),
@@ -54,7 +54,7 @@ const createPost = async (params) => {
             authorId,
             content,
             mediaUrl,
-            type,
+            type: type,
             governorates: governorate ? [governorate] : [author.governorate.name],
         },
         include: {

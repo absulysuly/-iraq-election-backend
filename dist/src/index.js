@@ -21,15 +21,26 @@ app.use((0, cors_1.default)({
 }));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-app.use('/auth', auth_1.authRouter);
-app.use('/social', social_1.socialRouter);
-app.use('/civic', civic_1.civicRouter);
-app.use('/portal/candidates', candidatePortal_1.default);
+// Mount routes with /api prefix
+app.use('/api/auth', auth_1.authRouter);
+app.use('/api/social', social_1.socialRouter);
+app.use('/api/civic', civic_1.civicRouter);
+app.use('/api/candidates', candidatePortal_1.default);
 app.get('/health', (_req, res) => {
     res.json({ status: 'ok' });
 });
-const PORT = config_1.config.port;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✅ Server running on port ${PORT}`);
-    console.log(`✅ Health check: http://localhost:${PORT}/health`);
+app.get('/api/health', (_req, res) => {
+    res.json({ status: 'ok', service: 'Iraq Election Backend', version: '1.0.0' });
 });
+const PORT = config_1.config.port;
+// Only start server if not in Vercel serverless environment
+// Railway and other platforms need the server to start
+if (!process.env.VERCEL) {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`✅ Server running on port ${PORT}`);
+        console.log(`✅ Health check: http://localhost:${PORT}/health`);
+        console.log(`🌍 Environment: ${config_1.config.environment}`);
+    });
+}
+// Export for Vercel serverless
+exports.default = app;

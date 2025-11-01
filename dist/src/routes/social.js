@@ -4,11 +4,6 @@ exports.socialRouter = void 0;
 const express_1 = require("express");
 const mockData_1 = require("../mockData");
 const router = (0, express_1.Router)();
-const asGovernorate = (value) => {
-    if (!value)
-        return undefined;
-    return value;
-};
 router.get('/users', (req, res) => {
     const { role, governorate } = req.query;
     let filtered = mockData_1.users;
@@ -30,7 +25,7 @@ router.get('/posts', (req, res) => {
         filtered = filtered.filter(post => post.governorates.includes(governorate));
     }
     if (authorId) {
-        filtered = filtered.filter(post => post.author.id === authorId);
+        filtered = filtered.filter(post => post.author?.id === authorId);
     }
     res.json(filtered);
 });
@@ -49,6 +44,7 @@ router.post('/posts', (req, res) => {
     const newPost = {
         id: `post-${Date.now()}`,
         author,
+        authorId,
         timestamp: new Date().toISOString(),
         content,
         likes: 0,
@@ -56,7 +52,9 @@ router.post('/posts', (req, res) => {
         shares: 0,
         isSponsored: false,
         type: 'Post',
-        governorates: governorate ? [governorate] : [author.governorate],
+        governorates: governorate ? [governorate] : (author.governorate ? [author.governorate] : []),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
     };
     mockData_1.posts.unshift(newPost);
     res.status(201).json(newPost);
@@ -76,6 +74,7 @@ router.post('/reels', (req, res) => {
     const newReel = {
         id: `reel-${Date.now()}`,
         author,
+        authorId,
         timestamp: new Date().toISOString(),
         content: caption,
         mediaUrl,
@@ -84,7 +83,9 @@ router.post('/reels', (req, res) => {
         shares: 0,
         isSponsored: false,
         type: 'Reel',
-        governorates: governorate ? [governorate] : [author.governorate],
+        governorates: governorate ? [governorate] : (author.governorate ? [author.governorate] : []),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
     };
     mockData_1.posts.unshift(newReel);
     res.status(201).json(newReel);
@@ -106,13 +107,18 @@ router.post('/events', (req, res) => {
     if (organizerId && !organizer) {
         return res.status(404).json({ error: 'organizer not found' });
     }
+    const defaultOrganizer = organizer ?? mockData_1.users[0];
     const newEvent = {
         id: `event-${Date.now()}`,
         title,
         date,
         location,
-        organizer: organizer ?? mockData_1.users[0],
+        organizer: defaultOrganizer,
+        organizerId: defaultOrganizer.id,
         governorate: governorate ?? organizer?.governorate ?? 'Baghdad',
+        governorateId: 'default-gov-id',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
     };
     mockData_1.events.unshift(newEvent);
     res.status(201).json(newEvent);

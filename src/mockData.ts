@@ -1,4 +1,4 @@
-import { GOVERNORATES, UserRole } from 'shared-schema/types';
+import { GOVERNORATES, UserRole } from '../shared-schema/types';
 import type { User, Post, Event, Debate, Article } from './types';
 import type { Candidate, DashboardStats, GovernorateParticipation, GovernorateData, Party } from './types';
 

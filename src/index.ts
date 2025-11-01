@@ -21,18 +21,31 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/auth', authRouter);
-app.use('/social', socialRouter);
-app.use('/civic', civicRouter);
-app.use('/portal/candidates', candidatePortalRouter);
+// Mount routes with /api prefix
+app.use('/api/auth', authRouter);
+app.use('/api/social', socialRouter);
+app.use('/api/civic', civicRouter);
+app.use('/api/candidates', candidatePortalRouter);
 
 app.get('/health', (_req: Request, res: Response) => {
     res.json({ status: 'ok' });
 });
 
+app.get('/api/health', (_req: Request, res: Response) => {
+    res.json({ status: 'ok', service: 'Iraq Election Backend', version: '1.0.0' });
+});
+
 const PORT = config.port;
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✅ Server running on port ${PORT}`);
-    console.log(`✅ Health check: http://localhost:${PORT}/health`);
-});
+// Only start server if not in Vercel serverless environment
+// Railway and other platforms need the server to start
+if (!process.env.VERCEL) {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`✅ Server running on port ${PORT}`);
+        console.log(`✅ Health check: http://localhost:${PORT}/health`);
+        console.log(`🌍 Environment: ${config.environment}`);
+    });
+}
+
+// Export for Vercel serverless
+export default app;
