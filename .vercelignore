@@ -1,6 +1,9 @@
 node_modules
-.git
-archive
-server.js
-prisma
 .env
+.env.*
+!.env.example
+*.log
+.DS_Store
+coverage
+.nyc_output
+dist/src/lib/prisma.js.bak

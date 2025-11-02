@@ -1,4 +1,5 @@
-import type { Governorate, Post, Event, Debate, Article, User } from 'shared-schema/types';
+import type { Governorate, Post, Event, Debate, Article, User } from '../shared-schema/types';
+export { UserRole, PostType } from '../shared-schema/types';
 
 export type { Governorate, Post, Event, Debate, Article, User };
 

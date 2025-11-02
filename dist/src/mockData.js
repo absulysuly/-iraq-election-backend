@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.partyData = exports.governorateData = exports.governorateParticipation = exports.slugify = exports.dashboardStats = exports.articles = exports.debates = exports.events = exports.posts = exports.users = void 0;
-const types_1 = require("shared-schema/types");
+const types_1 = require("../shared-schema/types");
 exports.users = [];
 exports.posts = [];
 exports.events = [];

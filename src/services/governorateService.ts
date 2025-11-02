@@ -71,5 +71,5 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
     if (!snapshot) {
         throw new Error('Dashboard snapshot not found');
     }
-    return snapshot.metrics as DashboardStats;
+    return snapshot.metrics as unknown as DashboardStats;
 };
